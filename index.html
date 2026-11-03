@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>Happy Birthday Ania!</title>
+    <meta
+      name="description"
+      content="You've got a birthday card. Tap to open it!"
+    />
+    <meta property="og:title" content="Happy Birthday Ania! 🎉" />
+    <meta
+      property="og:description"
+      content="You've got a birthday card. Tap to open it!"
+    />
+    <meta name="theme-color" content="#1d1430" />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎈</text></svg>"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&family=Great+Vibes&family=Playfair+Display:ital,wght@1,700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- soft party lights in the background -->
+    <div class="bokeh" aria-hidden="true"></div>
+
+    <main class="stage">
+      <div class="float">
+        <div class="tilt">
+          <div
+            class="card"
+            id="card"
+            role="button"
+            tabindex="0"
+            aria-pressed="false"
+            aria-label="Birthday card for Ania. Press to open."
+          >
+            <!-- ============ INSIDE RIGHT PAGE (your message) ============ -->
+            <section class="page inside-right paper-tex">
+              <div class="ornament" aria-hidden="true">
+                <i
+                  class="sparkle"
+                  style="--x: 42%; --y: 0; --s: 2; --t: 3.2s; --d: -0.4s"
+                ></i>
+                <i
+                  class="sparkle"
+                  style="--x: 48%; --y: -30%; --s: 3; --t: 2.6s; --d: -1.2s"
+                ></i>
+                <i
+                  class="sparkle"
+                  style="--x: 55%; --y: 10%; --s: 2; --t: 3.6s; --d: -2s"
+                ></i>
+              </div>
+
+              <div class="message" id="message">
+                <!-- ✏️ ===================== EDIT YOUR MESSAGE BELOW ===================== -->
+                <!-- Change the text between the <p> tags. Add or remove <p> lines as needed. -->
+                <!-- Long messages shrink automatically to fit the page.                        -->
+
+                <p class="salutation">Dear Ania,</p>
+
+                <p>Happy birthday! 🎉</p>
+
+                <p>
+                  I just want you to appreciate how awesome it has been knowing
+                  you. You have really made everyone realise how lucky we all
+                  are to have you as a friend.
+                </p>
+
+                <p>
+                  I relly apprciate your phylisopy in life and admire your
+                  strengths in pursuing it, even after hardships you never seem
+                  to get affetced. Keep being this way.
+                </p>
+
+                <p>
+                  Thank you for being such an amazing friend. Here's to
+                  celebrating you today and always!
+                </p>
+
+                <p class="signoff">With love,</p>
+                <p class="signature">William</p>
+
+                <!-- ✏️ ===================== END OF MESSAGE ===================== -->
+              </div>
+            </section>
+
+            <!-- ============ COVER (front + inside left) ============ -->
+            <div class="cover">
+              <!-- front of the card -->
+              <section class="face cover-front">
+                <div class="frame" aria-hidden="true"></div>
+                <div class="sparkles" aria-hidden="true"></div>
+                <div class="cover-art">
+                  <div class="balloons" aria-hidden="true">
+                    <span
+                      class="balloon"
+                      style="
+                        --x: 6%;
+                        --y: 14%;
+                        --s: 15;
+                        --c: #f47fa4;
+                        --t: 4.6s;
+                        --d: -1s;
+                      "
+                      ><b></b><i></i
+                    ></span>
+                    <span
+                      class="balloon"
+                      style="
+                        --x: 27%;
+                        --y: 0%;
+                        --s: 18;
+                        --c: #f2c14e;
+                        --t: 5.4s;
+                        --d: -3s;
+                      "
+                      ><b></b><i></i
+                    ></span>
+                    <span
+                      class="balloon"
+                      style="
+                        --x: 53%;
+                        --y: 7%;
+                        --s: 16;
+                        --c: #4fc3c7;
+                        --t: 5s;
+                        --d: -2s;
+                      "
+                      ><b></b><i></i
+                    ></span>
+                    <span
+                      class="balloon"
+                      style="
+                        --x: 76%;
+                        --y: 20%;
+                        --s: 13;
+                        --c: #ff8a65;
+                        --t: 4.2s;
+                        --d: -0.5s;
+                      "
+                      ><b></b><i></i
+                    ></span>
+                    <span
+                      class="balloon"
+                      style="
+                        --x: 40%;
+                        --y: 46%;
+                        --s: 10;
+                        --c: #b39ddb;
+                        --t: 3.8s;
+                        --d: -1.6s;
+                      "
+                      ><b></b><i></i
+                    ></span>
+                  </div>
+                  <h1 class="title">
+                    <span class="foil script">Happy Birthday</span>
+                    <span class="foil name">Ania!</span>
+                  </h1>
+                </div>
+              </section>
+
+              <!-- inside left page -->
+              <section class="face cover-back paper-tex">
+                <!-- 📷 Photos: change a picture by swapping its src.
+                     --pos picks which part of the photo stays visible when it is cropped.
+                     Optional: write a caption inside <figcaption></figcaption>. -->
+                <div class="photos">
+                  <figure class="polaroid p1">
+                    <span class="tape" aria-hidden="true"></span>
+                    <img
+                      src="assets/photos/photo-1.jpg"
+                      alt="Three friends in front of a pink neon sign"
+                      style="--pos: 50% 50%"
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="polaroid p2">
+                    <span class="tape" aria-hidden="true"></span>
+                    <img
+                      src="assets/photos/photo-2.jpg"
+                      alt="Friends dressed up in suits on a night out"
+                      style="--pos: 50% 62%"
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                  <figure class="polaroid p3">
+                    <span class="tape" aria-hidden="true"></span>
+                    <img
+                      src="assets/photos/photo-3.jpg"
+                      alt="Friends sitting in a circle around tea lights"
+                      style="--pos: 50% 50%"
+                    />
+                    <figcaption></figcaption>
+                  </figure>
+                </div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="hint" id="hint">Tap the card to open</p>
+    </main>
+
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="sky" id="sky" aria-hidden="true"></div>
+    <button class="sound" id="sound" type="button" aria-label="Mute sounds">
+      🔊
+    </button>
+
+    <script src="script.js"></script>
+  </body>
+</html>

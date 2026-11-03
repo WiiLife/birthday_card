@@ -1,0 +1,8 @@
+# Full-size original photos: large and contain GPS location data.
+# The card uses the small, metadata-free copies in assets/photos/ instead.
+assets/*.jpeg
+assets/*.jpg
+assets/*.heic
+assets/*.png
+
+.DS_Store

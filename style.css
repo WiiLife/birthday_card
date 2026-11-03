@@ -1,0 +1,665 @@
+/* =========================================================
+   Birthday card for Ania
+   Layout: desktop/tablet = side-fold card (opens like a book)
+           phone portrait = top-fold card (opens upwards)
+   ========================================================= */
+
+:root {
+  /* panel size (one side of the card) */
+  --pw: min(340px, 42vw, 58vh);
+  --ph: calc(var(--pw) * 1.4);
+  --u: calc(var(--pw) / 100);   /* 1 "card unit" */
+
+  --navy: #1c2748;
+  --ivory: #fbf6ea;
+  --ink: #23306a;
+  --ease: cubic-bezier(.55, .06, .25, 1);
+
+  --gold-foil: linear-gradient(105deg,
+      #94670f 0%, #e5bf62 16%, #fff0bd 28%, #d2a13a 40%, #8c6210 52%,
+      #f0cf7e 66%, #fff3c9 78%, #c08f2c 90%, #94670f 100%);
+  --rose-foil: linear-gradient(105deg,
+      #9c3f5c 0%, #d97a96 18%, #f3b3c5 30%, #b9506f 44%, #7d2e47 58%,
+      #d9778f 74%, #f0a9bc 86%, #a44766 100%);
+
+  /* paper textures (procedural SVG noise) */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1.8 0 0 0 -.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.24'/%3E%3C/svg%3E");
+  --grain-light: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 1.8 0 0 0 -.8'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='.16'/%3E%3C/svg%3E");
+  --mottle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='500' height='500'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .1 2.2 0 0 0 -1'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)' opacity='.12'/%3E%3C/svg%3E");
+}
+
+/* phone, portrait: card folds at the top */
+@media (max-width: 700px) and (orientation: portrait) {
+  :root {
+    --pw: min(92vw, 460px);
+    --ph: min(calc(var(--pw) * .72), 42vh);
+    --u: min(calc(var(--pw) / 100), calc(var(--ph) / 80));
+  }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  overflow: hidden;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color: #fff;
+  background:
+    radial-gradient(ellipse 80% 70% at 50% 45%, #4a3263 0%, #2a1b3d 48%, #140d21 100%);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* film grain over the whole scene */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  pointer-events: none;
+  background-image: var(--grain-light);
+  opacity: .5;
+}
+
+/* ---------- background party lights ---------- */
+.bokeh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.bokeh i {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--s);
+  aspect-ratio: 1;
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--c) 0, transparent 68%);
+  opacity: var(--o);
+  animation: bokeh var(--t) ease-in-out var(--d) infinite alternate;
+}
+@keyframes bokeh {
+  to { transform: translate(var(--dx), var(--dy)) scale(1.18); opacity: calc(var(--o) * .45); }
+}
+
+/* ---------- 3D stage ---------- */
+.stage {
+  position: relative;
+  z-index: 2;
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  perspective: 2000px;
+  perspective-origin: 50% 40%;
+}
+
+.float {
+  width: var(--pw);
+  height: var(--ph);
+  transform-style: preserve-3d;
+  animation: drift 7s ease-in-out infinite;
+}
+@keyframes drift {
+  0%, 100% { transform: translateY(0) rotateZ(-.5deg) rotateY(-3deg); }
+  50%      { transform: translateY(-8px) rotateZ(.5deg) rotateY(3deg); }
+}
+
+.tilt {
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+  transition: transform .6s cubic-bezier(.2, .7, .3, 1);
+}
+
+.card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  cursor: pointer;
+  outline: none;
+  transition: transform 1.3s var(--ease);
+}
+.card.open { transform: translateX(calc(var(--pw) / 2)); cursor: default; }
+
+.card:focus-visible .cover-front,
+.card.open:focus-visible .inside-right {
+  outline: 2px solid #ffe08a;
+  outline-offset: 6px;
+}
+
+.page, .face {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--u) * .8);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* ivory card stock */
+.paper-tex {
+  background-color: var(--ivory);
+  background-image:
+    radial-gradient(ellipse 120% 90% at 30% 15%, rgba(255, 255, 255, .55), transparent 60%),
+    var(--mottle),
+    var(--grain);
+  background-size: 100% 100%, 500px 500px, 180px 180px;
+}
+
+/* ---------- inside right page ---------- */
+.inside-right {
+  box-shadow:
+    0 calc(var(--u) * 2) calc(var(--u) * 5) rgba(0, 0, 0, .45),
+    0 1px 2px rgba(0, 0, 0, .3),
+    inset -1px -1px 0 rgba(120, 90, 50, .12);
+}
+/* fold shading near the spine */
+.inside-right::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(70, 45, 20, .16), rgba(70, 45, 20, 0) 9%);
+}
+/* shadow cast by the cover; fades as the card opens */
+.inside-right::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(90deg, rgba(20, 10, 30, .6), rgba(20, 10, 30, .2) 70%);
+  transition: opacity 1.1s ease .15s;
+}
+.card.open .inside-right::after { opacity: 0; }
+
+.ornament {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(var(--u) * 5);
+  height: calc(var(--u) * 3);
+}
+
+.message {
+  position: absolute;
+  inset: calc(var(--u) * 11) calc(var(--u) * 9) calc(var(--u) * 9);
+  overflow-y: auto;
+  scrollbar-width: none;
+  font-family: "Caveat", "Bradley Hand", "Segoe Print", cursive;
+  font-size: calc(var(--u) * 6.4);
+  font-weight: 500;
+  line-height: 1.28;
+  color: var(--ink);
+  text-shadow: 0 0 .6px rgba(35, 48, 106, .45);
+  transform: rotate(-.6deg);
+  cursor: auto;
+}
+.message::-webkit-scrollbar { display: none; }
+.message p { margin: 0 0 .55em; }
+.message .salutation { font-size: 1.25em; font-weight: 700; }
+.message .signoff { margin: .9em 0 0; }
+.message .signature { font-size: 1.35em; font-weight: 700; margin: 0; }
+
+/* ---------- cover ---------- */
+.cover {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transform-origin: left center;
+  transition: transform .7s cubic-bezier(.3, .7, .3, 1);
+}
+.card.open .cover,
+.card.closing .cover { transition: transform 1.4s var(--ease); }
+.card.open .cover { transform: rotateY(-180deg); }
+
+@media (hover: hover) {
+  .card:not(.open):not(.closing):hover .cover { transform: rotateY(-14deg); }
+}
+
+.cover-front {
+  transform: translateZ(1px);
+  overflow: hidden;
+  background-color: var(--navy);
+  background-image:
+    radial-gradient(ellipse 120% 90% at 22% 12%, rgba(255, 255, 255, .11), transparent 55%),
+    radial-gradient(ellipse 90% 70% at 85% 100%, rgba(0, 0, 0, .38), transparent 65%),
+    repeating-linear-gradient(0deg, rgba(255, 255, 255, .035) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(0, 0, 0, .09) 0 1px, transparent 1px 3px),
+    var(--grain-light);
+  background-size: auto, auto, auto, auto, 180px 180px;
+  box-shadow:
+    0 calc(var(--u) * 2) calc(var(--u) * 5) rgba(0, 0, 0, .5),
+    0 1px 2px rgba(0, 0, 0, .4),
+    inset 1px 1px 0 rgba(255, 255, 255, .14),
+    inset -1px -1px 0 rgba(0, 0, 0, .4);
+}
+
+.cover-back {
+  transform: rotateY(180deg) translateZ(1px);
+  box-shadow:
+    0 calc(var(--u) * 2) calc(var(--u) * 5) rgba(0, 0, 0, .45),
+    0 1px 2px rgba(0, 0, 0, .3);
+}
+.cover-back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(270deg, rgba(70, 45, 20, .18), rgba(70, 45, 20, 0) 10%);
+}
+
+/* Hide each side's content once it faces away (works around Safari
+   showing animated children through backface-visibility). */
+.cover-art, .sparkles { transition: visibility 0s linear .65s; }
+.card.open .cover-art, .card.open .sparkles { visibility: hidden; }
+.photos { visibility: hidden; transition: visibility 0s linear .65s; }
+.card.open .photos { visibility: visible; }
+
+/* gold foil border */
+.frame {
+  position: absolute;
+  inset: calc(var(--u) * 4);
+  border: 1.5px solid;
+  border-image: var(--gold-foil) 1;
+  opacity: .85;
+  pointer-events: none;
+}
+.frame::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--u) * 1.2);
+  border: 1px solid;
+  border-image: var(--gold-foil) 1;
+  opacity: .55;
+}
+
+.sparkles { position: absolute; inset: calc(var(--u) * 5); pointer-events: none; }
+
+.cover-art {
+  position: absolute;
+  inset: calc(var(--u) * 6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.balloons {
+  position: relative;
+  width: 100%;
+  flex: 0 0 46%;
+}
+
+.title {
+  margin: auto 0;
+  font-weight: normal;
+  line-height: 1;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  filter:
+    drop-shadow(0 1px 0 rgba(0, 0, 0, .6))
+    drop-shadow(0 0 calc(var(--u) * 1.6) rgba(255, 210, 120, .28));
+}
+
+/* metallic foil text */
+.foil {
+  display: inline-block;
+  padding: 0 .2em;
+  background: var(--gold-foil);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 5s ease-in-out infinite alternate;
+}
+.foil.rose { background-image: var(--rose-foil); }
+@keyframes shimmer {
+  from { background-position: 0% 50%; }
+  to   { background-position: 100% 50%; }
+}
+
+.script {
+  font-family: "Great Vibes", "Snell Roundhand", "Brush Script MT", cursive;
+  font-size: calc(var(--u) * 12);
+  line-height: 1.25;
+}
+.name {
+  font-family: "Playfair Display", Georgia, serif;
+  font-style: italic;
+  font-weight: 700;
+  font-size: calc(var(--u) * 21);
+  line-height: 1.08;
+  margin-top: calc(var(--u) * -1.5);
+}
+
+/* ---------- sparkles ---------- */
+.sparkle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: calc(var(--u) * var(--s));
+  aspect-ratio: 1;
+  background: var(--gold-foil);
+  background-size: 300% 300%;
+  clip-path: polygon(50% 0, 61% 39%, 100% 50%, 61% 61%, 50% 100%, 39% 61%, 0 50%, 39% 39%);
+  animation: twinkle var(--t) ease-in-out var(--d) infinite;
+}
+@keyframes twinkle {
+  0%, 100% { transform: scale(.35) rotate(0deg); opacity: .35; }
+  50%      { transform: scale(1) rotate(45deg); opacity: 1; }
+}
+
+/* ---------- balloons (cover + floating) ---------- */
+.balloons .balloon { --bw: calc(var(--u) * var(--s)); }
+.balloon {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--bw);
+  aspect-ratio: 5 / 6;
+  transform-origin: 50% 170%;
+  animation: bob var(--t, 5s) ease-in-out var(--d, 0s) infinite alternate;
+}
+.balloon b {
+  position: absolute;
+  inset: 0;
+  border-radius: 50% 50% 47% 53% / 56% 56% 44% 44%;
+  background:
+    radial-gradient(22% 15% at 31% 25%, rgba(255, 255, 255, .9), rgba(255, 255, 255, 0)),
+    radial-gradient(120% 120% at 36% 30%,
+      color-mix(in srgb, var(--c) 70%, #fff) 0%,
+      var(--c) 42%,
+      color-mix(in srgb, var(--c) 55%, #000) 100%);
+  box-shadow: inset calc(var(--bw) * -.06) calc(var(--bw) * -.08) calc(var(--bw) * .16) rgba(0, 0, 0, .22);
+}
+/* knot */
+.balloon b::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 97%;
+  width: 14%;
+  height: 9%;
+  transform: translateX(-50%);
+  background: color-mix(in srgb, var(--c) 70%, #000);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+/* string */
+.balloon i {
+  position: absolute;
+  left: 50%;
+  top: 105%;
+  width: 1px;
+  height: 150%;
+  background: linear-gradient(var(--string, rgba(255, 228, 170, .75)), transparent);
+}
+@keyframes bob {
+  from { transform: translateY(0) rotate(-4deg); }
+  to   { transform: translateY(-4%) rotate(4deg); }
+}
+
+/* ---------- inside left: polaroid photos ---------- */
+.photos { position: absolute; inset: 0; }
+
+.polaroid {
+  --w: calc(var(--pw) * .44);
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 1;
+  width: var(--w);
+  margin: 0;
+  padding: calc(var(--w) * .06) calc(var(--w) * .06) calc(var(--w) * .2);
+  border-radius: 2px;
+  background-color: #fdfbf6;
+  background-image:
+    linear-gradient(160deg, rgba(255, 255, 255, .7), rgba(0, 0, 0, .035)),
+    var(--grain);
+  background-size: auto, 180px 180px;
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, .12),
+    0 calc(var(--u) * 1) calc(var(--u) * 2.6) rgba(60, 40, 20, .3),
+    inset 0 0 0 1px rgba(0, 0, 0, .04);
+  transform: rotate(var(--r));
+  cursor: zoom-in;
+  outline: none;
+  transition: transform .35s cubic-bezier(.2, .8, .3, 1), box-shadow .35s;
+}
+.polaroid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+  object-position: var(--pos, 50% 50%);
+  filter: saturate(1.05) contrast(1.03);
+}
+/* glossy print + slight edge shadow on the photo */
+.polaroid::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--w) * .06) calc(var(--w) * .06) calc(var(--w) * .2);
+  pointer-events: none;
+  background: linear-gradient(125deg, rgba(255, 255, 255, .2), rgba(255, 255, 255, 0) 38%);
+  box-shadow: inset 0 0 calc(var(--w) * .02) rgba(0, 0, 0, .35);
+}
+.polaroid figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: calc(var(--w) * .2);
+  display: grid;
+  place-items: center;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: calc(var(--w) * .09);
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+}
+/* washi tape */
+.tape {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--w) * -.05);
+  z-index: 2;
+  width: calc(var(--w) * .38);
+  height: calc(var(--w) * .11);
+  transform: translateX(-50%) rotate(var(--tr, -3deg));
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, .18) 0 4px, transparent 4px 8px),
+    var(--tape, rgba(244, 127, 164, .55));
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 100% 0, 96% 12%, 100% 25%, 96% 40%, 100% 55%, 96% 70%, 100% 85%, 97% 100%, 0 100%, 4% 85%, 0 70%, 4% 55%, 0 40%, 4% 25%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .12);
+}
+
+.p1 { --x: 5%;  --y: 4%;  --r: -6deg; }
+.p2 { --x: 50%; --y: 13%; --r: 5deg;  --tr: 4deg;  --tape: rgba(79, 195, 199, .5); }
+.p3 { --x: 24%; --y: 51%; --r: -2deg; --tr: -6deg; --tape: rgba(242, 193, 78, .55); }
+
+@media (hover: hover) {
+  .card.open .polaroid:hover {
+    z-index: 5;
+    transform: rotate(var(--r)) translateY(-3%) scale(1.04);
+    box-shadow:
+      0 1px 1px rgba(0, 0, 0, .12),
+      0 calc(var(--u) * 2.5) calc(var(--u) * 5) rgba(60, 40, 20, .35);
+  }
+}
+.polaroid:focus-visible { outline: 2px solid #c0567a; outline-offset: 3px; }
+
+/* ---------- photo viewer ---------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: rgba(10, 6, 18, .8);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  cursor: zoom-out;
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.lightbox[hidden] { display: none; }
+.lightbox.show { opacity: 1; }
+.lightbox figure {
+  margin: 0;
+  padding: 12px 12px 0;
+  background-color: #fdfbf6;
+  background-image: var(--grain);
+  border-radius: 2px;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, .55);
+  transform: rotate(-2deg) scale(.9);
+  transition: transform .35s cubic-bezier(.2, .8, .3, 1);
+}
+.lightbox.show figure { transform: rotate(-1deg) scale(1); }
+.lightbox img {
+  display: block;
+  max-width: calc(100vw - 56px);
+  max-height: calc(100dvh - 130px);
+  width: auto;
+  height: auto;
+}
+.lightbox figcaption {
+  min-height: 52px;
+  display: grid;
+  place-items: center;
+  font-family: "Caveat", cursive;
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--ink);
+}
+
+/* ---------- hint + sound button ---------- */
+.hint {
+  white-space: pre-line;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: max(18px, 3.5vh, env(safe-area-inset-bottom));
+  z-index: 3;
+  margin: 0;
+  text-align: center;
+  font-size: 13px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(255, 240, 220, .75);
+  pointer-events: none;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: .45; }
+  50%      { opacity: 1; }
+}
+
+.sound {
+  position: fixed;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(14px, env(safe-area-inset-bottom));
+  z-index: 30;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, .18);
+  background: rgba(255, 255, 255, .08);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+}
+.sound:hover { background: rgba(255, 255, 255, .16); }
+
+/* ---------- confetti + floating balloons ---------- */
+#confetti {
+  position: fixed;
+  inset: 0;
+  z-index: 25;
+  pointer-events: none;
+}
+
+.sky {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  overflow: hidden;
+  pointer-events: none;
+}
+.rise {
+  position: absolute;
+  left: var(--x);
+  top: 100%;
+  width: var(--bw);
+  aspect-ratio: 5 / 6;
+  animation: rise var(--t) cubic-bezier(.4, .1, .6, 1) var(--d) both;
+}
+.rise .balloon {
+  --string: rgba(255, 255, 255, .55);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  animation: sway var(--sw) ease-in-out infinite alternate;
+}
+.rise .balloon b { pointer-events: auto; cursor: pointer; }
+.rise.popped { animation-play-state: paused; }
+.rise.popped .balloon b { animation: pop .16s ease-out forwards; }
+.rise.popped .balloon i { transition: transform .7s ease-in, opacity .7s; transform: translateY(40px) rotate(25deg); opacity: 0; }
+
+@keyframes rise {
+  from { transform: translateY(0); }
+  to   { transform: translateY(calc(-100vh - 320px)); }
+}
+@keyframes sway {
+  from { transform: translateX(-14px) rotate(-6deg); }
+  to   { transform: translateX(14px) rotate(6deg); }
+}
+@keyframes pop {
+  to { transform: scale(1.4); opacity: 0; }
+}
+
+/* ---------- phone portrait: top-fold card ---------- */
+@media (max-width: 700px) and (orientation: portrait) {
+  .stage { perspective: 1500px; }
+  .card.open { transform: translateY(calc(var(--ph) / 2)); }
+
+  .cover { transform-origin: center top; }
+  .card.open .cover { transform: rotateX(180deg); }
+  .card:not(.open):not(.closing):hover .cover { transform: rotateX(10deg); }
+  .cover-back { transform: rotateX(180deg) translateZ(1px); }
+
+  .inside-right::before { background: linear-gradient(180deg, rgba(70, 45, 20, .16), rgba(70, 45, 20, 0) 10%); }
+  .inside-right::after  { background: linear-gradient(180deg, rgba(20, 10, 30, .6), rgba(20, 10, 30, .2) 70%); }
+  .cover-back::before   { background: linear-gradient(0deg, rgba(70, 45, 20, .18), rgba(70, 45, 20, 0) 12%); }
+
+  .script { font-size: calc(var(--u) * 10.5); }
+  .name   { font-size: calc(var(--u) * 18); }
+
+  .message { inset: calc(var(--u) * 9) calc(var(--u) * 8) calc(var(--u) * 6); }
+  .ornament { top: calc(var(--u) * 3.5); }
+  /* landscape page: three photos side by side */
+  .polaroid { --w: calc(var(--pw) * .29); }
+  .p1 { --x: 3%;  --y: 14%; --r: -6deg; }
+  .p2 { --x: 36%; --y: 8%;  --r: 2deg; }
+  .p3 { --x: 68%; --y: 16%; --r: 6deg; }
+}
+
+/* ---------- reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .float, .balloon, .sparkle, .foil, .bokeh i, .hint { animation: none !important; }
+  .card, .card.open .cover, .card.closing .cover { transition-duration: .6s; }
+}
