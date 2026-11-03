@@ -8,7 +8,16 @@
   const tilt = $('.tilt');
   const hint = $('#hint');
   const polaroids = document.querySelectorAll('.polaroid');
-  const lightbox = $('#lightbox');
+  // photo viewer (built here so the HTML doesn't need to contain it)
+  let lightbox = $('#lightbox');
+  if (!lightbox) {
+    lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+    lightbox.id = 'lightbox';
+    lightbox.hidden = true;
+    lightbox.innerHTML = '<figure><img alt=""><figcaption></figcaption></figure>';
+    document.body.append(lightbox);
+  }
   const lbImg = $('img', lightbox);
   const lbCap = $('figcaption', lightbox);
   const message = $('#message');
